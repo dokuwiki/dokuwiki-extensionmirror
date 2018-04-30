@@ -41,15 +41,10 @@ class Downloader extends CLI
     protected function main(Options $options)
     {
         $this->datadir = $options->getOpt('datadir', './data');
-        if (!is_dir($this->datadir)) {
-            if (!mkdir($this->datadir, 0777, true)) throw new Exception('Could not create data dir');
-        }
-        if (!is_dir($this->datadir . '/meta')) {
-            if (!mkdir($this->datadir . '/meta', 0777, true)) throw new Exception('Could not create meta dir');
-        }
-        if (!is_dir($this->datadir . '/src')) {
-            if (!mkdir($this->datadir . '/src', 0777, true)) throw new Exception('Could not create src dir');
-        }
+        $this->initDir($this->datadir . '/meta/plugin');
+        $this->initDir($this->datadir . '/meta/template');
+        $this->initDir($this->datadir . '/src/plugin');
+        $this->initDir($this->datadir . '/src/template');
 
         $this->logfile = $this->datadir . '/meta/error.log';
         if (file_exists($this->logfile)) unlink($this->logfile);
@@ -70,6 +65,19 @@ class Downloader extends CLI
         }
     }
 
+    /**
+     * Create the given dir
+     *
+     * @param string $dir
+     * @return bool
+     * @throws Exception
+     */
+    protected function initDir($dir) {
+        if (is_dir($dir)) return true;
+        $ok = mkdir($dir, 0777, true);
+        if(!$ok) throw new Exception('Could not create dir '.$dir);
+        return $ok;
+    }
 
     /**
      * @param $name
@@ -143,7 +151,7 @@ class Downloader extends CLI
                 $name = $type;
                 $type = 'plugin';
             }
-            $fullname = "$type-$name";
+            $fullname = "$type/$name";
 
             if (empty($extension['downloadurl'])) {
                 $this->error('No download for {ext}', ['ext' => $fullname]);
