@@ -1,0 +1,22 @@
+{
+    "name": "splitbrain/dokuwiki-extensionmirror",
+    "description": "download all dokuwiki plugins",
+    "type": "project",
+    "license": "MIT",
+    "authors": [
+        {
+            "name": "Andreas Gohr",
+            "email": "andi@splitbrain.org"
+        }
+    ],
+    "require": {
+        "splitbrain/php-cli": "^1.1",
+        "ptcong/easyrequest": "^1.0",
+        "splitbrain/php-archive": "^1.0"
+    },
+    "autoload": {
+        "psr-4": {
+            "splitbrain\\DokuWikiExtensionMirror\\": "src"
+        }
+    }
+}
