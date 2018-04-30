@@ -81,10 +81,11 @@ class Downloader extends CLI
      * @return bool
      * @throws Exception
      */
-    protected function initDir($dir) {
+    protected function initDir($dir)
+    {
         if (is_dir($dir)) return true;
         $ok = mkdir($dir, 0777, true);
-        if(!$ok) throw new Exception('Could not create dir '.$dir);
+        if (!$ok) throw new Exception('Could not create dir ' . $dir);
         return $ok;
     }
 
@@ -125,7 +126,7 @@ class Downloader extends CLI
 
         if (is_dir($tmp)) $this->delTree($tmp);
         $extractor->open($archive);
-        $extractor->extract($tmp,'','/\\.(git|svn)/');
+        $extractor->extract($tmp, '', '/\\.(git|svn)/');
         $extractor->close();
         $this->info('Extracted archive');
 
@@ -136,7 +137,7 @@ class Downloader extends CLI
 
         unlink($archive);
         $this->delTree($tmp);
-        $this->success('Downloaded {p} version {d}', ['p'=>$name, 'd' => $version]);
+        $this->success('Downloaded {p} version {d}', ['p' => $name, 'd' => $version]);
     }
 
 
@@ -160,7 +161,7 @@ class Downloader extends CLI
                 $name = $type;
                 $type = 'plugin';
             }
-            if($type == 'plugins') $type = 'plugin'; #FIXME why does this happen?
+            if ($type == 'plugins') $type = 'plugin'; #FIXME why does this happen?
             $fullname = "$type/$name";
 
             if (empty($extension['downloadurl'])) {
