@@ -24,6 +24,10 @@ Optionally, specify where to put the data:
 
     ./extensionmirror.php -d /path/to/data
 
+You can also download the current `master` of DokuWiki itself (in addition to all extensions) using the `-w` option:
+
+    ./extensionmirror.php -w
+
 ## Use OpenGrok for fast search
 
 Use docker to run [Opengrok](http://oracle.github.io/opengrok/) on top of the `data/src` directory:

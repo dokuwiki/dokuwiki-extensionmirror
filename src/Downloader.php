@@ -28,6 +28,7 @@ class Downloader extends CLI
     {
         $options->setHelp('Download all known DokuWiki extensions');
         $options->registerOption('datadir', 'Where to store downloaded data', 'd', 'directory');
+        $options->registerOption('dokuwiki', 'Should the wiki master be downloaded as well?', 'w', false);
     }
 
     /**
@@ -50,6 +51,14 @@ class Downloader extends CLI
         if (file_exists($this->logfile)) unlink($this->logfile);
 
         $dls = $this->getDownloads();
+        if ($options->getOpt('dokuwiki')) {
+            $dls[] = [
+                'name' => 'dokuwiki',
+                'url' => 'https://github.com/splitbrain/dokuwiki/archive/master.zip',
+                'date' => 'master'
+            ];
+        }
+
         foreach ($dls as $dl) {
             $this->info('Fetching {p}...', ['p' => $dl['name']]);
             try {
