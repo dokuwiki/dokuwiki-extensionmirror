@@ -116,7 +116,7 @@ class Downloader extends CLI
 
         if (is_dir($tmp)) $this->delTree($tmp);
         $extractor->open($archive);
-        $extractor->extract($tmp);
+        $extractor->extract($tmp,'','/\\.(git|svn)/');
         $extractor->close();
         $this->info('Extracted archive');
 
