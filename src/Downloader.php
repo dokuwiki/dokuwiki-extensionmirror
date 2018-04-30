@@ -151,6 +151,7 @@ class Downloader extends CLI
                 $name = $type;
                 $type = 'plugin';
             }
+            if($type == 'plugins') $type = 'plugin'; #FIXME why does this happen?
             $fullname = "$type/$name";
 
             if (empty($extension['downloadurl'])) {
