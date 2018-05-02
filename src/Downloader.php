@@ -65,11 +65,7 @@ class Downloader extends CLI
                 $this->download($dl['name'], $dl['url'], $dl['date']);
             } catch (\Exception $e) {
                 $this->error($e->getMessage());
-                file_put_contents(
-                    $this->logfile,
-                    $dl['name'] . "\t" . $e->getMessage() . "\n",
-                    FILE_APPEND
-                );
+                $this->logerror($dl['name'], $e->getMessage());
             }
         }
     }
@@ -166,11 +162,7 @@ class Downloader extends CLI
 
             if (empty($extension['downloadurl'])) {
                 $this->error('No download for {ext}', ['ext' => $fullname]);
-                file_put_contents(
-                    $this->logfile,
-                    $fullname . "\tno download URL\n",
-                    FILE_APPEND
-                );
+                $this->logerror($fullname, 'no download URL');
                 continue;
             }
 
@@ -242,4 +234,18 @@ class Downloader extends CLI
         return $dir;
     }
 
+    /**
+     * log an error
+     *
+     * @param string $extension
+     * @param string $message
+     */
+    protected function logerror($extension, $message)
+    {
+        file_put_contents(
+            $this->logfile,
+            $extension . "\t" . $message . "\n",
+            FILE_APPEND
+        );
+    }
 }
