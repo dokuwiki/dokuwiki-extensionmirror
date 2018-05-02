@@ -158,6 +158,12 @@ class Downloader extends CLI
                 $type = 'plugin';
             }
             if ($type == 'plugins') $type = 'plugin'; #FIXME why does this happen?
+            if ($type != 'plugin' && $type != 'template') {
+                $this->error('wrong type {type} for {ext}', ['type' => $type, 'ext' => $extension['plugin']]);
+                $this->logerror($extension['plugin'], 'Unknonw type');
+                continue;
+            }
+
             $fullname = "$type/$name";
 
             if (empty($extension['downloadurl'])) {
