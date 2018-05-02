@@ -233,6 +233,7 @@ class Downloader extends CLI
         $dirs = array_filter($dirs, function ($item) {
             return basename($item) !== 'pax_global_header';
         }); // fix some weird tars
+        $dirs = array_values($dirs);
 
         if (!count($files) && count($dirs) === 1) {
             return $this->getFilesPath($dirs[0]); // go one deeper
