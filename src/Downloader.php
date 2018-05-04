@@ -29,6 +29,7 @@ class Downloader extends CLI
         $options->setHelp('Download all known DokuWiki extensions');
         $options->registerOption('datadir', 'Where to store downloaded data', 'd', 'directory');
         $options->registerOption('dokuwiki', 'Should the wiki master be downloaded as well?', 'w', false);
+        $options->registerOption('git', 'Prefer git checkouts? Takes longer and results in more data', 'g', false);
     }
 
     /**
@@ -55,12 +56,25 @@ class Downloader extends CLI
             $dls[] = [
                 'name' => 'dokuwiki',
                 'url' => 'https://github.com/splitbrain/dokuwiki/archive/master.zip',
-                'date' => 'master'
+                'date' => 'master',
+                'repo' => 'https://github.com/splitbrain/dokuwiki',
             ];
         }
 
         foreach ($dls as $dl) {
             $this->info('Fetching {p}...', ['p' => $dl['name']]);
+
+            // prefer clone
+            if ($dl['repo'] && $options->getOpt('git')) {
+                try {
+                    $this->checkout($dl['name'], $dl['repo'], $dl['date']);
+                    continue;
+                } catch (\Exception $e) {
+                    $this->error($e->getMessage());
+                }
+            }
+
+            // if no repo or clone failed, download zip
             try {
                 $this->download($dl['name'], $dl['url'], $dl['date']);
             } catch (\Exception $e) {
@@ -83,6 +97,25 @@ class Downloader extends CLI
         $ok = mkdir($dir, 0777, true);
         if (!$ok) throw new Exception('Could not create dir ' . $dir);
         return $ok;
+    }
+
+    /**
+     * Get the normalized clone URL for the most used source repos
+     *
+     * @param $repo
+     * @return false|string
+     */
+    protected function normalizedRepo($repo)
+    {
+        if (preg_match('/github\.com\/([-\w]+)\/([-\w]+)/', $repo, $m)) {
+            return 'https://github.com/' . $m[1] . '/' . $m[2] . '.git';
+        } elseif (preg_match('/gitlab\.com\/([-\w]+)\/([-\w]+)/', $repo, $m)) {
+            return 'https://gitlab.com/' . $m[1] . '/' . $m[2] . '.git';
+        } elseif (preg_match('/bitbucket\.(?:org|com)\/([-\w]+)\/([-\w]+)/', $repo, $m)) {
+            return 'https://gitlab.org/' . $m[1] . '/' . $m[2] . '.git';
+        }
+
+        return false;
     }
 
     /**
@@ -136,6 +169,36 @@ class Downloader extends CLI
         $this->success('Downloaded {p} version {d}', ['p' => $name, 'd' => $version]);
     }
 
+    /**
+     * @param string $name
+     * @param string $repo
+     * @param string $version
+     * @throws Exception
+     */
+    protected function checkout($name, $repo, $version)
+    {
+        $last = $this->datadir . '/meta/' . $name . '.last';
+        $target = $this->datadir . '/src/' . $name;
+        $tmp = $this->datadir . '/meta/' . $name . '.tmp';
+
+        $this->info('Cloning {url}', ['url' => $repo]);
+
+        // clone the repo
+        if (is_dir($tmp)) $this->delTree($tmp);
+        $e_repo = escapeshellarg($repo);
+        $e_tmp = escapeshellarg($tmp);
+        $ok = 0;
+        system("GIT_TERMINAL_PROMPT=0 git clone $e_repo $e_tmp", $ok);
+        if ($ok !== 0) throw new Exception('Cloning failed');
+
+        // move cloned directory to target
+        if (is_dir($target)) $this->delTree($target);
+        rename($tmp, $target);
+        file_put_contents($last, $version);
+
+        $this->success('Downloaded {p} version {d}', ['p' => $name, 'd' => $version]);
+    }
+
 
     /**
      * Get all releases that have not been downloaded, yet
@@ -160,7 +223,7 @@ class Downloader extends CLI
             if ($type == 'plugins') $type = 'plugin'; #FIXME why does this happen?
             if ($type != 'plugin' && $type != 'template') {
                 $this->error('wrong type {type} for {ext}', ['type' => $type, 'ext' => $extension['plugin']]);
-                $this->logerror($extension['plugin'], 'Unknonw type');
+                $this->logerror($extension['plugin'], 'Unknown type');
                 continue;
             }
 
@@ -176,7 +239,8 @@ class Downloader extends CLI
                 $downloads[] = [
                     'name' => $fullname,
                     'url' => $extension['downloadurl'],
-                    'date' => $extension['lastupdate']
+                    'date' => $extension['lastupdate'],
+                    'repo' => isset($extension['sourcerepo']) ? $this->normalizedRepo($extension['sourcerepo']) : false,
                 ];
             }
         }
