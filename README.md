@@ -32,6 +32,8 @@ You can also download the current `master` of DokuWiki itself (in addition to al
 
 Use docker to run [Opengrok](http://oracle.github.io/opengrok/) on top of the `data/src` directory:
 
-    docker run --rm -t -v `pwd`/data/src:/src -p 8080:8080 nagui/opengrok:latest
+    docker run --rm -t -v `pwd`/data/src:/src -p 8080:8080 opengrok/docker:latest
 
 The image will start to index the sources, this takes several minutes. Once it's done, you can search through the code at [http://localhost:8080/source](http://localhost:8080/source). A Cross-Reference Browser is available at [http://localhost:8080/source/xref/](http://localhost:8080/source/xref/)
+
+An online version of the search is now available at https://codesearch.dokuwiki.org
