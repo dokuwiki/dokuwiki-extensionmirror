@@ -55,9 +55,9 @@ class Downloader extends CLI
         if ($options->getOpt('dokuwiki')) {
             $dls[] = [
                 'name' => 'dokuwiki',
-                'url' => 'https://github.com/splitbrain/dokuwiki/archive/master.zip',
+                'url' => 'https://github.com/dokuwiki/dokuwiki/archive/master.zip',
                 'date' => 'master',
-                'repo' => 'https://github.com/splitbrain/dokuwiki',
+                'repo' => 'https://github.com/dokuwiki/dokuwiki.git',
             ];
         }
 
