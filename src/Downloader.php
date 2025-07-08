@@ -111,8 +111,8 @@ class Downloader extends CLI
             return 'https://github.com/' . $m[1] . '/' . $m[2] . '.git';
         } elseif (preg_match('/gitlab\.com\/([-\w]+)\/([-\w]+)/', $repo, $m)) {
             return 'https://gitlab.com/' . $m[1] . '/' . $m[2] . '.git';
-        } elseif (preg_match('/bitbucket\.(?:org|com)\/([-\w]+)\/([-\w]+)/', $repo, $m)) {
-            return 'https://gitlab.org/' . $m[1] . '/' . $m[2] . '.git';
+        } elseif (preg_match('/bitbucket\.(org|com)\/([-\w]+)\/([-\w]+)/', $repo, $m)) {
+            return 'https://bitbucket.' . $m[1] . '/' . $m[1] . '/' . $m[3] . '.git';
         }
 
         return false;
