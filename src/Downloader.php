@@ -182,21 +182,43 @@ class Downloader extends CLI
         $target = $this->datadir . '/src/' . $name;
         $tmp = $this->datadir . '/meta/' . $name . '.tmp';
 
-        $this->info('Cloning {url}', ['url' => $repo]);
-
-        // clone the repo
-        if (is_dir($tmp)) $this->delTree($tmp);
         $e_repo = escapeshellarg($repo);
+        $e_target = escapeshellarg($target);
         $e_tmp = escapeshellarg($tmp);
         $ok = 0;
-        system("GIT_TERMINAL_PROMPT=0 git clone $e_repo $e_tmp", $ok);
-        if ($ok !== 0) throw new Exception('Cloning failed');
 
-        // move cloned directory to target
-        if (is_dir($target)) $this->delTree($target);
-        rename($tmp, $target);
+        // Check if target is already a git repository
+        if (is_dir($target) && is_dir($target . '/.git')) {
+            $this->info('Updating existing git repository {url}', ['url' => $repo]);
+
+            // Change to target directory and update
+            system("cd $e_target && GIT_TERMINAL_PROMPT=0 git remote set-url origin $e_repo", $ok);
+            if ($ok !== 0) throw new Exception('Failed to update remote URL');
+
+            system("cd $e_target && GIT_TERMINAL_PROMPT=0 git fetch origin", $ok);
+            if ($ok !== 0) throw new Exception('Failed to fetch from remote');
+
+            system("cd $e_target && GIT_TERMINAL_PROMPT=0 git reset --hard origin/HEAD", $ok);
+            if ($ok !== 0) throw new Exception('Failed to reset to remote HEAD');
+
+            system("cd $e_target && GIT_TERMINAL_PROMPT=0 git clean -fd", $ok);
+            if ($ok !== 0) throw new Exception('Failed to clean working directory');
+
+        } else {
+            $this->info('Cloning {url}', ['url' => $repo]);
+
+            // clone the repo
+            if (is_dir($tmp)) $this->delTree($tmp);
+
+            system("GIT_TERMINAL_PROMPT=0 git clone $e_repo $e_tmp", $ok);
+            if ($ok !== 0) throw new Exception('Cloning failed');
+
+            // move cloned directory to target
+            if (is_dir($target)) $this->delTree($target);
+            rename($tmp, $target);
+        }
+
         file_put_contents($last, $version);
-
         $this->success('Downloaded {p} version {d}', ['p' => $name, 'd' => $version]);
     }
 
