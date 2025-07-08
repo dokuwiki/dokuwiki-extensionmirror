@@ -11,8 +11,8 @@
     ],
     "require": {
         "splitbrain/php-cli": "^1.1",
-        "ptcong/easyrequest": "^1.0",
-        "splitbrain/php-archive": "^1.0"
+        "splitbrain/php-archive": "^1.0",
+        "guzzlehttp/guzzle": "*"
     },
     "autoload": {
         "psr-4": {

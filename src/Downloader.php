@@ -2,6 +2,7 @@
 
 namespace splitbrain\DokuWikiExtensionMirror;
 
+use GuzzleHttp\Client;
 use splitbrain\PHPArchive\Tar;
 use splitbrain\PHPArchive\Zip;
 use splitbrain\phpcli\CLI;
@@ -132,8 +133,8 @@ class Downloader extends CLI
         $archive = $this->datadir . '/meta/' . $name . '.archive';
 
         $this->info('Downloading {url}', ['url' => $url]);
-        $request = \EasyRequest\Client::request($url, 'GET', ['follow_redirects' => true]);
-        $response = $request->send();
+        $client = new Client();
+        $response = $client->get($url, ['allow_redirects' => true]);
         $body = (string)$response->getBody();
         if ($response->getStatusCode() >= 400) {
             throw new Exception('Download failed. Status ' . $response->getStatusCode());
@@ -207,8 +208,8 @@ class Downloader extends CLI
      */
     protected function getDownloads()
     {
-        $request = \EasyRequest\Client::request(self::API);
-        $response = $request->send();
+        $client = new Client();
+        $response = $client->get(self::API);
         $results = unserialize($response->getBody());
 
         $this->info('{cnt} extensions found', ['cnt' => count($results)]);
